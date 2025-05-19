@@ -17,8 +17,7 @@ def merge_address(df: pd.DataFrame,
             'long': ['in_area_long', 'out_area_long']} 
     add_col = {'short': 'add_short_code',
                'long': 'add_long_code'}
-    # reson = 
-    
+
     for k, v in cols.items():
         if k == 'short':
             add_df_cp = add_df.iloc[:, :2].dropna()
@@ -31,7 +30,6 @@ def merge_address(df: pd.DataFrame,
                                                    left_on = col,
                                                    right_on = add_col[k],
                                                    how = 'left')[f'{k}_address']
-            # df = df.drop(add_col[k], axis=1)
     return df
 
 def load_address():
@@ -96,24 +94,26 @@ def load_dataset():
             pass
     return dataset            
 
-def extract_out_in(df: pd.DataFrame):
+def extract_out_in(year: str, df: pd.DataFrame):
     out_in = df.loc[df['out_area_short'] == '47230',] # 전출지를 영천시 기준으로
     out_in = out_in[out_in['in_area_short'] != '47230'] # 전입지 중 영천시 제외
     out_to_in_cnt = out_in.groupby('in_area_short')['in_area_short'].count()
     
     out_in_cnt_df = pd.DataFrame({
+        "year": [year] * len(out_to_in_cnt),
         "in_area_short": list(out_to_in_cnt.index),
         "in_cnt": list(out_to_in_cnt.values)
     })
     return out_in_cnt_df
 
-def extract_reason(df: pd.DataFrame):
+def extract_reason(year: str, df: pd.DataFrame):
     out_in = df.loc[df['out_area_short'] == '47230',] # 전출지를 영천시 기준으로
     out_in = out_in[out_in['in_area_short'] != '47230'] # 전입지 중 영천시 제외
     
     out_in_re_res = out_in.groupby('in_reason')['in_reason'].count()
     
     out_in_re_res = pd.DataFrame({
+        "year": [year] * len(out_in_re_res),
         "reason": out_in_re_res.index,
         "reason_count": out_in_re_res.values
     })
@@ -121,7 +121,6 @@ def extract_reason(df: pd.DataFrame):
     return out_in_re_res
 
 datasets = load_dataset()
-
 df_22 = datasets['2022_population'].copy()
 
 cols = ['in_area_short', 'in_short_address']
@@ -134,25 +133,29 @@ for k, v in datasets.items():
         out_in = out_in[out_in['in_area_short'] != '47230'] # 전입지 중 영천시 제외
         out_in_cnt.append(len(out_in))
         out_in_year.append(k.split('_')[0])
-        
+
 df_out_in_trend = pd.DataFrame({
     "Year": out_in_year,
     "count": out_in_cnt
 })
 
+# export out trend
 # df_out_in_trend.to_csv('../preprocessed_dataset/1_out_trend.csv', header=True, index=False)
 
 out_in_set = dict()
+out_in_set_df = pd.DataFrame()
 for k, v in datasets.items():
     if k[0] == '2':
-        out_in_set[k.split('_')[0]] = extract_out_in(v)
+        df = extract_out_in(k.split('_')[0],v)
+        out_in_set_df = pd.concat([out_in_set_df, df])
     else:
         pass
+out_in_set_df.to_csv('../preprocessed_dataset/2_out_cnt.csv', header=True, index=False)
 
-
-# for y, d in out_in_set.items():
-#     d.to_csv(f'../preprocessed_dataset/2_out_cnt_{y}.csv', header=True, index=False)
-
+# export reason
+out_reason_df = pd.DataFrame()
 for y in out_in_year:
-    df = extract_reason(datasets[f'{y}_population'])
-    df.to_csv(f'../preprocessed_dataset/3_out_reason_{y}.csv', header=True, index=False)
+    df = extract_reason(y, datasets[f'{y}_population'])
+    out_reason_df = pd.concat([out_reason_df, df])
+    # df.to_csv(f'../preprocessed_dataset/3_out_reason_{y}.csv', header=True, index=False)
+out_reason_df.to_csv('../preprocessed_dataset/3_out_reason.csv', header=True, index=False)
