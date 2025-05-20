@@ -33,7 +33,7 @@ def merge_address(df: pd.DataFrame,
     return df
 
 def load_address():
-    f_path = '../data/address.xlsx'
+    f_path = './data/populations/address.xlsx'
     df = pd.read_excel(f_path)
     # df['short_code'] = df['short_code'].astype('int')
     df['add_short_code'] = df['add_short_code'].loc[df['add_short_code'].notna(),].astype('int').astype('str')
@@ -44,11 +44,11 @@ def load_address():
 
 def load_dataset():
     dataset = dict()
-    raw_list = os.listdir('../data')
+    raw_list = os.listdir('./data/populations')
     
     # load address dataset that refers code book
     add_df = load_address()
-    reason_df = pd.read_excel('../data/reason_code.xlsx')
+    reason_df = pd.read_excel('./data/populations/reason_code.xlsx')
     
     """
     모든 feature들은 code임 -> 코드북 참고
@@ -71,9 +71,10 @@ def load_dataset():
 
     for r in raw_list:
         # print(r)
-        r_path = os.path.join('../data', r)
+        r_path = os.path.join('./data/populations', r)
         if r.split('.')[1] == 'csv':
-            df = pd.read_csv(r_path, names=columns, header=None, encoding='utf-8')
+            print(r.split('.')[0])
+            df = pd.read_csv(r_path, names=columns, header=None)
             # 세대별로 분석할 예정이니 세대원 데이터는 삭제한다
             df_1 = df.iloc[:, :9]
             df_2 = df.iloc[:, -1]
@@ -101,8 +102,9 @@ def extract_out_in(year: str, df: pd.DataFrame):
     
     out_in_cnt_df = pd.DataFrame({
         "year": [year] * len(out_to_in_cnt),
-        "in_area_short": list(out_to_in_cnt.index),
-        "in_cnt": list(out_to_in_cnt.values)
+        "src_area_short": ['47230'] * len(out_to_in_cnt),
+        "tar_area_short": list(out_to_in_cnt.index),
+        "cnt": list(out_to_in_cnt.values)
     })
     return out_in_cnt_df
 
@@ -139,9 +141,6 @@ df_out_in_trend = pd.DataFrame({
     "count": out_in_cnt
 })
 
-# export out trend
-# df_out_in_trend.to_csv('../preprocessed_dataset/1_out_trend.csv', header=True, index=False)
-
 out_in_set = dict()
 out_in_set_df = pd.DataFrame()
 for k, v in datasets.items():
@@ -150,7 +149,7 @@ for k, v in datasets.items():
         out_in_set_df = pd.concat([out_in_set_df, df])
     else:
         pass
-out_in_set_df.to_csv('../preprocessed_dataset/2_out_cnt.csv', header=True, index=False)
+out_in_set_df.to_csv('./preprocessed_dataset/2_out_cnt.csv', header=True, index=False)
 
 # export reason
 out_reason_df = pd.DataFrame()
@@ -158,4 +157,4 @@ for y in out_in_year:
     df = extract_reason(y, datasets[f'{y}_population'])
     out_reason_df = pd.concat([out_reason_df, df])
     # df.to_csv(f'../preprocessed_dataset/3_out_reason_{y}.csv', header=True, index=False)
-out_reason_df.to_csv('../preprocessed_dataset/3_out_reason.csv', header=True, index=False)
+# out_reason_df.to_csv('../preprocessed_dataset/3_out_reason.csv', header=True, index=False)
