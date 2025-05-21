@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-def load_datasets(category: str):
+def load_datasets(category: str) -> pd.DataFrame:
     r_path = f'./data/{category}'
     f_dir = os.listdir(r_path)
     encod_options = ['cp949','euc-kr', 'utf-16', 'ascii']

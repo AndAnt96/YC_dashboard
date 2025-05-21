@@ -6,7 +6,7 @@ from numpy import nan
 warnings.filterwarnings('ignore')
 
 def split_state_region(df: pd.DataFrame,  
-                       target_column: str):
+                       target_column: str) -> pd.DataFrame:
     df['state'] = df[target_column].apply(lambda x: x.split(' ')[0])
     df['region'] = df[target_column].apply(lambda x: x.split(' ')[1])
     df = df.drop(columns=[target_column])
@@ -15,7 +15,7 @@ def split_state_region(df: pd.DataFrame,
 def convert_count_df(df: pd.DataFrame,
                     target_col: str,
                     state: str,
-                    category: str):
+                    category: str) -> pd.DataFrame:
     ds = df.groupby(target_col)[target_col].count()
     
     return pd.DataFrame({
@@ -26,7 +26,7 @@ def convert_count_df(df: pd.DataFrame,
     
 def concat_all(df: pd.DataFrame,
                address_col: str,
-               category: str):
+               category: str) -> pd.DataFrame:
     states = {'daegu': '대구광역시', 'kb': '경상북도'}
 
     processed_dict = dict()
@@ -49,7 +49,7 @@ parks = concat_all(parks,
                    address_col,
                    'parks')
 
-culture_processed = pd.read_csv('./preprocessed_dataset/8_culture.csv')
+culture_processed = pd.read_csv('./preprocessed_dataset/society_df.csv')
 culture_processed['state'] = culture_processed['행정구역'].apply(lambda x: x.split('_')[0])
 culture_processed['region'] = culture_processed['행정구역'].apply(lambda x: x.split('_')[1])
 culture_processed = culture_processed.iloc[:, 1:]
