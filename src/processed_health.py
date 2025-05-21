@@ -28,10 +28,10 @@ def convert_pivot_table(df: pd.DataFrame,
                         tar_cat_col: str,
                         tar_cnt_col: str) -> pd.DataFrame:
     
-    df = df.pivot_table(index=['region'], 
-                              columns=tar_cat_col,
-                              values=tar_cnt_col, 
-                              fill_value=0).astype('int')
+    df = df.pivot_table(index=['region'],
+                        columns=tar_cat_col,
+                        values=tar_cnt_col,
+                        fill_value=0).astype('int')
     df = df.reset_index().rename_axis(None, axis=1)
     df['state'] = pd.Series([state]*len(df))
     df_state_pop = df.pop('state')

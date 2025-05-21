@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 def merge_reason(df: pd.DataFrame,
-                 reason_df: pd.DataFrame):
+                 reason_df: pd.DataFrame) -> pd.DataFrame:
     
     df['in_reason'] = df.merge(reason_df,
                                left_on = 'in_reason_code',
@@ -11,7 +11,7 @@ def merge_reason(df: pd.DataFrame,
     return df
 
 def merge_address(df: pd.DataFrame,
-                  add_df: pd.DataFrame):
+                  add_df: pd.DataFrame) -> pd.DataFrame:
     
     cols = {'short': ['in_area_short', 'out_area_short'],
             'long': ['in_area_long', 'out_area_long']} 
@@ -32,7 +32,7 @@ def merge_address(df: pd.DataFrame,
                                                    how = 'left')[f'{k}_address']
     return df
 
-def load_address():
+def load_address() -> pd.DataFrame:
     f_path = './data/populations/address.xlsx'
     df = pd.read_excel(f_path)
     # df['short_code'] = df['short_code'].astype('int')
@@ -42,7 +42,7 @@ def load_address():
     df['long_address'] = df['long_address'].str.replace('.', '·')
     return df
 
-def load_dataset():
+def load_dataset() -> dict:
     dataset = dict()
     raw_list = os.listdir('./data/populations')
     
