@@ -44,7 +44,6 @@ def processing_cnt(state: str,
         concated_df = concated_df.reset_index(drop=True)
     return concated_df
 
-os.chdir('../')
 sh_dataset = load_datasets('school')
 
 daegu_sch = sh_dataset['daegu_school_2024'].iloc[:, :3].copy()

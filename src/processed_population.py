@@ -42,7 +42,7 @@ def load_address() -> pd.DataFrame:
     df['long_address'] = df['long_address'].str.replace('.', '·')
     return df
 
-def load_dataset() -> dict:
+def load_datasets() -> dict:
     dataset = dict()
     raw_list = os.listdir('./data/populations')
     
@@ -122,24 +122,30 @@ def extract_reason(year: str, df: pd.DataFrame):
     
     return out_in_re_res
 
-datasets = load_dataset()
-df_22 = datasets['2022_population'].copy()
+datasets = load_datasets()
 
 cols = ['in_area_short', 'in_short_address']
-ext_22 = df_22.loc[:, cols].drop_duplicates(['in_area_short']).reset_index(drop=True)
-
-out_in_cnt, out_in_year = list(), list()
-for k, v in datasets.items():
+out_in_cnt, out_in_year, out_rate = list(), list(), list()
+for i,(k, v) in enumerate(datasets.items()):
     if k[0] == '2':
         out_in = v.loc[v['out_area_short'] == '47230',] # 전출지를 영천시 기준으로
         out_in = out_in[out_in['in_area_short'] != '47230'] # 전입지 중 영천시 제외
         out_in_cnt.append(len(out_in))
         out_in_year.append(k.split('_')[0])
-
+        if k == '2021':
+            out_rate.append(0)
+        else:
+            rates = ((out_in_cnt[i] - out_in_cnt[i-1]) / out_in_cnt[i-1]) * 100   
+            out_rate.append(round(rates, 2))
 df_out_in_trend = pd.DataFrame({
     "Year": out_in_year,
-    "count": out_in_cnt
+    "count": out_in_cnt,
+    "out_rate": out_rate
 })
+
+# df_out_in_trend.to_csv('./preprocessed_dataset/1_out_trend.csv', header=True, index=False)
+
+# genecation [23: 54976, 22: , 21: ]
 
 out_in_set = dict()
 out_in_set_df = pd.DataFrame()
@@ -149,7 +155,7 @@ for k, v in datasets.items():
         out_in_set_df = pd.concat([out_in_set_df, df])
     else:
         pass
-out_in_set_df.to_csv('./preprocessed_dataset/2_out_cnt.csv', header=True, index=False)
+# out_in_set_df.to_csv('./preprocessed_dataset/2_out_cnt.csv', header=True, index=False)
 
 # export reason
 out_reason_df = pd.DataFrame()

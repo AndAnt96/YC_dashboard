@@ -90,6 +90,6 @@ filt_region = list(culture_processed['region'].unique())
 concated_data = pd.concat([h_daegu, h_kb]).reset_index(drop=True)
 concated_data = concated_data.loc[concated_data['region'].isin(filt_region) == True, :]
 
-concated_data.to_csv('./preprocessed_dataset/5_hospital.csv', header=True, index=False)
+# concated_data.to_csv('./preprocessed_dataset/5_hospital.csv', header=True, index=False)
 
 # discard_cat = [cat for cat in cat_da if cat not in cat_kb]
